@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Message Generator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: 40px auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 13px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            background: #e5e7eb;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .tab-button.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            resize: vertical;
+            font-family: Arial, sans-serif;
+            font-size: 15px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 11px 18px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .generate {
+            background: #2563eb;
+            color: white;
+        }
+
+        .copy {
+            background: #16a34a;
+            color: white;
+        }
+
+        .clear {
+            background: #6b7280;
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .output {
+            margin-top: 20px;
+        }
+
+        .output textarea {
+            min-height: 230px;
+        }
+
+        .quick-copy {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .quick-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: #fafafa;
+        }
+
+        .quick-item p {
+            margin: 0 0 12px 0;
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+
+        .quick-item button {
+            background: #111827;
+            color: white;
+            width: 100%;
+        }
+
+        .status {
+            display: none;
+            margin-top: 10px;
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+        @media (max-width: 650px) {
+            .quick-copy {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .container {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Creative Message Generator</h1>
+
+    <!-- Main Generator -->
+    <div class="card">
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="selectVersion('first', this)">
+                First Version
+            </button>
+
+            <button class="tab-button" onclick="selectVersion('revised', this)">
+                Revised Version
+            </button>
+        </div>
+
+        <label for="inputText">Paste Your Shareable Link / Text</label>
+
+        <textarea
+            id="inputText"
+            placeholder="Paste your link or text here..."
+        ></textarea>
+
+        <div class="buttons">
+            <button class="generate" onclick="generateText()">
+                Generate Text
+            </button>
+
+            <button class="copy" onclick="copyGeneratedText()">
+                Copy Generated Text
+            </button>
+
+            <button class="clear" onclick="clearAll()">
+                Clear
+            </button>
+        </div>
+
+        <div class="output">
+            <label for="outputText">Generated Text</label>
+
+            <textarea id="outputText" readonly></textarea>
+
+            <div id="status" class="status">
+                ✓ Text copied successfully!
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Quick Copy Messages -->
+    <div class="card">
+
+        <h2>Quick Copy Messages</h2>
+
+        <div class="quick-copy">
+
+            <div class="quick-item">
+                <p id="message1">The approved creatives are attached.</p>
+
+                <button onclick="copyMessage('message1', this)">
+                    Copy Message
+                </button>
+            </div>
+
+
+            <div class="quick-item">
+                <p id="message2">The approved creatives were uploaded to the requested line item.</p>
+
+                <button onclick="copyMessage('message2', this)">
+                    Copy Message
+                </button>
+            </div>
+
+
+            <div class="quick-item">
+                <p id="message3">Hi!
+I have attached the downloadable files to this message. Please don't hesitate to reach out if you need anything else. Thanks!</p>
+
+                <button onclick="copyMessage('message3', this)">
+                    Copy Message
+                </button>
+            </div>
+
+
+            <div class="quick-item">
+                <p id="message4">Hi, here is the video creative, kindly check and reach out if any changes. Thanks!</p>
+
+                <button onclick="copyMessage('message4', this)">
+                    Copy Message
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    let selectedVersion = "first";
+
+
+    // Select First / Revised Version
+    function selectVersion(version, button) {
+
+        selectedVersion = version;
+
+        document.querySelectorAll(".tab-button").forEach(btn => {
+            btn.classList.remove("active");
+        });
+
+        button.classList.add("active");
+
+        generateText();
+    }
+
+
+    // Generate Main Text
+    function generateText() {
+
+        const pastedText = document.getElementById("inputText").value.trim();
+        const output = document.getElementById("outputText");
+
+        if (selectedVersion === "first") {
+
+            output.value =
+`Please review the creatives by clicking on the shareable link:
+
+${pastedText}
+
+You can send this link to the client for review. Let us know if you have any feedback or revisions. When this is approved, I’ll send over the downloadable files.`;
+
+        } else {
+
+            output.value =
+`Please view the revised version here:
+
+${pastedText}
+
+Let us know of additional feedback/revisions or approval. Thanks!`;
+
+        }
+    }
+
+
+    // Copy Generated Text
+    function copyGeneratedText() {
+
+        const output = document.getElementById("outputText");
+
+        if (!output.value.trim()) {
+            generateText();
+        }
+
+        navigator.clipboard.writeText(output.value).then(() => {
+
+            const status = document.getElementById("status");
+
+            status.style.display = "block";
+
+            setTimeout(() => {
+                status.style.display = "none";
+            }, 2000);
+
+        });
+
+    }
+
+
+    // Copy Quick Messages
+    function copyMessage(elementId, button) {
+
+        const text = document.getElementById(elementId).innerText;
+
+        navigator.clipboard.writeText(text).then(() => {
+
+            const originalText = button.innerText;
+
+            button.innerText = "✓ Copied!";
+
+            setTimeout(() => {
+                button.innerText = originalText;
+            }, 1500);
+
+        });
+
+    }
+
+
+    // Clear Everything
+    function clearAll() {
+
+        document.getElementById("inputText").value = "";
+        document.getElementById("outputText").value = "";
+
+        document.getElementById("status").style.display = "none";
+
+    }
+
+</script>
+
+</body>
+</html>
